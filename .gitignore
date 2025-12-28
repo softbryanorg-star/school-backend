@@ -1,0 +1,6 @@
+.env
+node_modules/
+dist/
+debugAdminCompare.js
+resetAdminPassword.js
+resetSpecificAdmin.js
