@@ -11,7 +11,7 @@ const router = express.Router();
 router.get("/test-email", async (req, res) => {
   try {
     await sendEmail({
-      to: process.env.EMAIL_USER, // send to yourself
+      to: process.env.BREVO_SMTP_USER, // send to yourself
       subject: "Test Email",
       html: "<h2>Email system is working 🚀</h2>",
     });
