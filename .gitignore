@@ -4,3 +4,4 @@ dist/
 debugAdminCompare.js
 resetAdminPassword.js
 resetSpecificAdmin.js
+testRoutes.js
