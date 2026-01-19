@@ -45,6 +45,12 @@ const schoolInfoSchema = mongoose.Schema(
     ogImage: {           //Open Graph image for social media sharing
       type: String,
     },
+    logoPublicId: {
+      type: String,
+    },
+    ogImagePublicId: {
+      type: String,
+    },
   },
   {
     timestamps: true,

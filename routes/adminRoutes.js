@@ -55,15 +55,15 @@ router.post("/add", protectAdmin, addAdmin);                      //alows creati
 /* 
   FOR PAGES (CMS)
     */
-router.post("/pages", protectAdmin, createPage);       //Create new page 
-router.put("/pages/:id", protectAdmin, updatePage);
+router.post("/pages", protectAdmin, upload.single("image"), createPage);       //Create new page 
+router.put("/pages/:id", protectAdmin, upload.single("image"), updatePage);
 router.delete("/pages/:id", protectAdmin, deletePage);
 router.get("/pages/:slug", protectAdmin, getPage);
 
 /* 
   FOR NEWS / ANNOUNCEMENTS
 */
-router.post("/news", protectAdmin, createNews);
+router.post("/news", protectAdmin, upload.single("image"), createNews);
 router.get("/news", protectAdmin, getAllNews);
 router.delete("/news/:id", protectAdmin, deleteNews);
 
@@ -78,8 +78,8 @@ router.get("/gallery", protectAdmin, getGallery);
    FOR SCHOOL INFO
   */
 router.get("/school-info", protectAdmin, getSchoolInfo);
-router.post("/school-info", protectAdmin, updateSchoolInfo);
-router.put("/school-info", protectAdmin, updateSchoolInfo);
+router.post("/school-info", protectAdmin, upload.single("logo"), updateSchoolInfo);
+router.put("/school-info", protectAdmin, upload.single("logo"), updateSchoolInfo);
 
 /*
  FOR  CONTACT MESSAGES

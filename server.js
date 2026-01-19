@@ -6,7 +6,7 @@ import publicRoutes from "./routes/publicRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import generalLimiter from "./middleware/rateLimiter.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";   //Imports centralized error-handling middleware. Ensures consistent error responses across the app
-import testRoutes from "./routes/testRoutes.js"; //Also delete this one its part of the testing
+// import testRoutes from "./routes/testRoutes.js"; //Also delete this one its part of the testing
 
 dotenv.config();
 connectDB();         //It Establishes database connection when the server starts. If DB fails, the app should not silently continue.
@@ -20,7 +20,7 @@ server.use(generalLimiter);   //Applies rate limiting to all routes to mitigate 
 //   Routes
 server.use("/api", publicRoutes);
 server.use("/api/admin", adminRoutes);
-server.use("/api/test", testRoutes);//THIS IS JUST FOR TESTING Once confirmed:
+// server.use("/api/test", testRoutes);//THIS IS JUST FOR TESTING Once confirmed:
 // ❌ DELETE this test route ❌ Do NOT deploy it
 // This is only for local verification.
 

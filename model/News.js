@@ -27,6 +27,9 @@ const newsSchema = mongoose.Schema(
       type: String,
       //Not required because some news may not have images
     },
+    coverImagePublicId: {
+      type: String,
+    },
 
     isPublished: {
       type: Boolean,

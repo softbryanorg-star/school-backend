@@ -1,5 +1,7 @@
 import SchoolInfo from "../model/SchoolInfo.js";       //imports the schoolinfo mongoose model this model stores global school details 
-                                                      // and it is designed to have only one document in the database
+													  // and it is designed to have only one document in the database
+import cloudinary from "../utils/cloudinary.js";
+import { unlink } from "fs/promises";
 
 // Controller to get and update global school information used across the website
    export const getSchoolInfo = async (req, res) => {
@@ -9,27 +11,54 @@ res.status(200).json(info);                   //sends school information as json
 
 // Controller to update global school information used across the website protected by admin autentification at route level
 export const updateSchoolInfo = async (req, res) => {
-let info = await SchoolInfo.findOne();  //checks if a schoolInfo document already exists ensures single record architecture
-if (!info) {                          //if no record exists create one
-	// Provide sensible SEO defaults when creating
-	const body = { ...req.body };       //clone request body to avoid direct mutation 
-	body.metaTitle = body.metaTitle || (body.schoolName ? `${body.schoolName} - Official` : "");   //sets default meta title using school name if not provided
-	body.metaDescription = body.metaDescription || (body.about ? body.about.substring(0, 160) : ""); //sets default meta description using about section if not provided
-	body.metaKeywords = body.metaKeywords || (body.schoolName ? body.schoolName.split(" ").slice(0, 8) : []);   //sets default meta keywords using school name words if not provided
-	body.ogImage = body.ogImage || body.logo || "";     //sets ogImage to logo if not provided
+	let info = await SchoolInfo.findOne();
+	if (!info) {
+		// Provide sensible SEO defaults when creating
+		const body = { ...req.body };
+		body.metaTitle = body.metaTitle || (body.schoolName ? `${body.schoolName} - Official` : "");
+		body.metaDescription = body.metaDescription || (body.about ? body.about.substring(0, 160) : "");
+		body.metaKeywords = body.metaKeywords || (body.schoolName ? body.schoolName.split(" ").slice(0, 8) : []);
+		body.ogImage = body.ogImage || body.logo || "";
 
-	info = await SchoolInfo.create(body);   // It creates the initial SchoolInfo document using admin provided data from request body
-} else {                                   //if schoolInfo already exist update instead of creating a new one
-	Object.assign(info, req.body);         //merges updated fields into existing document ony fields sent in req.body are changed
-	// Ensure existing record has SEO fields filled when missing
-	if (!info.metaTitle && info.schoolName) info.metaTitle = `${info.schoolName} - Official`;       
-	if (!info.metaDescription && info.about) info.metaDescription = info.about.substring(0, 160);
-	if ((!info.metaKeywords || info.metaKeywords.length === 0) && info.schoolName)
-		info.metaKeywords = info.schoolName.split(" ").slice(0, 8);
-	if (!info.ogImage && info.logo) info.ogImage = info.logo;
-	await info.save();                    //saves updated data to mongodb and triggers schema validations and timestamp(updated at)
-}
-res.status(200).json({ success: true, data: info });   //sends success response with updated school info data
+		// Handle optional logo file upload
+		if (req.file) {
+			try {
+				const result = await cloudinary.uploader.upload(req.file.path, { folder: "school-logo" });
+				body.logo = result.secure_url;
+				body.logoPublicId = result.public_id;
+				await unlink(req.file.path).catch(() => {});
+			} catch (err) {
+				if (req.file) await unlink(req.file.path).catch(() => {});
+				return res.status(500).json({ message: err.message });
+			}
+		}
+
+		info = await SchoolInfo.create(body);
+	} else {
+		// If a new logo file is uploaded, replace previous logo in Cloudinary
+		if (req.file) {
+			try {
+				if (info.logoPublicId) await cloudinary.uploader.destroy(info.logoPublicId).catch(() => {});
+				const result = await cloudinary.uploader.upload(req.file.path, { folder: "school-logo" });
+				info.logo = result.secure_url;
+				info.logoPublicId = result.public_id;
+				await unlink(req.file.path).catch(() => {});
+			} catch (err) {
+				if (req.file) await unlink(req.file.path).catch(() => {});
+				return res.status(500).json({ message: err.message });
+			}
+		}
+
+		Object.assign(info, req.body);
+		// Ensure existing record has SEO fields filled when missing
+		if (!info.metaTitle && info.schoolName) info.metaTitle = `${info.schoolName} - Official`;
+		if (!info.metaDescription && info.about) info.metaDescription = info.about.substring(0, 160);
+		if ((!info.metaKeywords || info.metaKeywords.length === 0) && info.schoolName)
+			info.metaKeywords = info.schoolName.split(" ").slice(0, 8);
+		if (!info.ogImage && info.logo) info.ogImage = info.logo;
+		await info.save();
+	}
+	res.status(200).json({ success: true, data: info });
 };
 
 

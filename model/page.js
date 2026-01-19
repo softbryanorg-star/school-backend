@@ -29,6 +29,13 @@ const pageSchema = mongoose.Schema(
       default: true,           // By Default it is published
     },
 
+    coverImage: {
+      type: String,
+    },
+    coverImagePublicId: {
+      type: String,
+    },
+
      metaTitle: {        //it makes the page appear un gogle search bar
          type: String, 
          trim: true
