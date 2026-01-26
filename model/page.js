@@ -32,8 +32,8 @@ const pageSchema = mongoose.Schema(
     coverImage: {
       type: String,
     },
-    coverImagePublicId: {
-      type: String,
+    coverImagePublicId: {    //
+      type: String,    
     },
 
      metaTitle: {        //it makes the page appear un gogle search bar
